@@ -1,0 +1,23 @@
+#!/usr/bin/python
+
+import os
+import ConfigParser
+
+
+descFile = "./descriptor.conf"
+if not os.path.isfile(descFile):
+	print '\nERR: descriptor %s does not exist!\n' % (configFile)
+	sys.exit()
+descriptor = ConfigParser.ConfigParser()
+descriptor.read(descFile)
+
+# get vm
+section = 'VM'
+try:
+	vms = int(descriptor.get(section, 'vmnumber'))
+	print vms
+except ConfigParser.NoSectionError:
+	print '\nERR: No section: %s in config-file!\n' % (section)
+	sys.exit()
+for i in range(0,vms):
+	
