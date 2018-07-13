@@ -2,7 +2,7 @@
 
 import os
 import ConfigParser
-
+import sys
 
 descFile = "./descriptor.conf"
 if not os.path.isfile(descFile):
@@ -12,7 +12,7 @@ descriptor = ConfigParser.ConfigParser()
 descriptor.read(descFile)
 
 # get vm
-section = 'VM'
+section = 'vm'
 try:
 	vms = int(descriptor.get(section, 'vmnumber'))
 	print vms
@@ -20,4 +20,15 @@ except ConfigParser.NoSectionError:
 	print '\nERR: No section: %s in config-file!\n' % (section)
 	sys.exit()
 for i in range(0,vms):
-	
+	numvm = 'vm' + str(i+1)
+	try:
+		name = str(descriptor.get(numvm, 'name'))
+		print name
+		# here parse to another script to build VMs automatically
+
+	except ConfigParser.NoOptionError:
+		print 'ERROR'
+		sys.exit()
+
+# boot up VM
+os.system("sh bootvm.sh")
