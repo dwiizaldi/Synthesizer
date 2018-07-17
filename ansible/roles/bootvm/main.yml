@@ -1,0 +1,33 @@
+---
+
+- name: boot the VM and check the status 
+  hosts: 127.0.0.1
+  connection: local 
+
+  tasks: 
+#    - name: start libvirtd
+#      service:
+#        name: libvirtd
+#        state: started
+#        enabled: yes
+
+    - name: get list VMs
+      virt:
+        command: list_vms 
+      register: output_vms
+
+    - debug:
+        msg: "{{ output_vms }}"
+    
+    - name: run all the VMs
+      virt:
+        name: "{{ output_vms.list_vms[1] }}" 
+        state: running 
+
+    - name: check VM status
+      virt:
+        name: "{{ output_vms.list_vms[1] }}"
+        command: status
+      register: output_status
+
+ 
