@@ -1,15 +1,16 @@
 ---
+# vars file for createvm
 
 guests:
   - name: <from descriptor file parsed to here>
     url: http://centos.osuosl.org/6/os/x86_64/
     cpu: <from descriptor file parsed to here>
-    mem: <from descriptor file parsed to here> 
+    mem: <from descriptor file parsed to here>
     virt_type: kvm
     virt_hypervisor: hvm
     os:
       type: linux
       variant: rhel6
     disk:
-      size: <from descriptor file parsed to here> 
+      size: <from descriptor file parsed to here>
       path: /var/lib/libvirt/images

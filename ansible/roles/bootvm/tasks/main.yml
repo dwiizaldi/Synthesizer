@@ -1,27 +1,23 @@
 ---
+# tasks file for bootvm1
+- name: get list VMs
+  virt:
+    command: list_vms
+  register: output_vms
 
-- name: boot the VM and check the status 
-  hosts: 127.0.0.1
-  connection: local 
+- debug:
+    msg: "{{ output_vms.list_vms }}"
 
-  tasks: 
-    - name: get list VMs
-      virt:
-        command: list_vms 
-      register: output_vms
+- name: run all the VMs
+  virt:
+    name: "{{ output_vms.list_vms[1] }}"
+    state: running
 
-    - debug:
-        msg: "{{ output_vms }}"
-    
-    - name: run all the VMs
-      virt:
-        name: "{{ output_vms.list_vms[1] }}" 
-        state: running 
+- name: check VM status
+  virt:
+    name: "{{ output_vms.list_vms[1] }}"
+    command: status
+  register: output_status
 
-    - name: check VM status
-      virt:
-        name: "{{ output_vms.list_vms[1] }}"
-        command: status
-      register: output_status
-
- 
+- debug:
+    msg:  "{{ output_status }}"
