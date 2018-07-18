@@ -1,7 +1,0 @@
-server:
-$ python simplewebsrv.py <port> <ip>
-
-client:
-$ curl http://<ip>:<port>/api/v1/addrecord/<keyid> -X POST -i -H "Content-Type:application/json" -d "<keyvalue>"
-$ curl http://<ip>:<port>/api/v1/getrecord/<keyid> -X GET
-curl http://127.0.0.1:8001/api/v1/setdelay/<delaytype> -X POST -H 'Content-Type:application/json' -d <intdelay>
