@@ -1,0 +1,9 @@
+---
+
+- name: start everything
+  hosts: 127.0.0.1
+  connection: local
+  roles:
+    - createvm
+    - bootvm
+    - uploadscript
