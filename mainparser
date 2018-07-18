@@ -24,7 +24,7 @@ for i in range(0,vms):
 	try:
 		name = str(descriptor.get(numvm, 'name'))
 		print name
-		# here parse to another script to build VMs automatically
+		# here parse to Ansible Module to build VMs automatically
 
 	except ConfigParser.NoOptionError:
 		print 'ERROR'
@@ -32,3 +32,6 @@ for i in range(0,vms):
 
 # boot up VM
 os.system("sh bootvm.sh")
+
+# inject the component script to the VM
+os.system("sh injectComponent.sh")

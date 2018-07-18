@@ -1,0 +1,13 @@
+- name: create directory in target host
+  tasks:
+    - file:
+        path: /home/synthesizer/components
+        state: directory
+        mode: 0755
+
+- name: copying the component script to the target host
+  copy:
+    src: /home/ccma/test/Synthesizer/ansible/roles/uploadscript/files
+    dest: /home/synthesizer/components
+
+

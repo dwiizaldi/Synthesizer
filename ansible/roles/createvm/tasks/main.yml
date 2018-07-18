@@ -1,0 +1,20 @@
+---
+
+- name: create VMs
+  hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/vms.yml
+
+  tasks:
+    - name: create vm
+      command: >
+               virt-install --name {{ item.name }}
+               -r {{ item.mem }} --vcpus {{ item.cpu }}
+               --noautoconsole --os-variant {{ item.os.variant }}
+               --location {{ item.url }}
+               --os-type {{ item.os.type }}
+               --network network=default
+               --virt-type {{ item.virt_type }}
+               --disk size= {{item.disk.size}},path= {{ item.disk.path }}/ {{ item.name }}.img
+       with_items: guests
