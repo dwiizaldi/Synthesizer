@@ -71,7 +71,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 	dtype = self.path.split('/')[-1]
 	LocalData.records[dtype] = data
 	for kkey in data:
-	  pass
+	  print kkey
 	print "new delay inputted - type: %s, value: %s" % (dtype, kkey)
 	if dtype == 'delay_post_f':
 	  delay_post_f = kkey
@@ -88,42 +88,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
 
-
-    elif None != re.search('/api/v1/setstress/*', self.path):
-      ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-      if ctype == 'application/json':
-        length = int(self.headers.getheader('content-length'))
-        data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-        stype = self.path.split('/')[-1]
-        LocalData.records[stype] = data
-        for num in data:
-          pass
-        if stype == 'cpu':
-          print "start stressing CPU: %s" % (num)
-        if stype == 'mem':
-          print "start stressing memory: %s" % (num)  
-      else:
-        data = {}
-
-        self.send_response(200)
-        self.end_headers()
-    
-
-    elif None != re.search('/api/v1/setnetwork/*', self.path):
-      ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-      if ctype == 'application/json':
-        length = int(self.headers.getheader('content-length'))
-        data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-        ntype = self.path.split('/')[-1]
-        LocalData.records[ntype] = data
-        for net in data:
-          pass
-        if stype == 'ping':
-          print "start generating ping" % (net)
-        if stype == 'bandwidth':
-          print "start limiting the bandwidth: %s" % (net)
-      else:
-        data = {}
 
     else:
       self.send_response(403)
