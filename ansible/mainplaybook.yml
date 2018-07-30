@@ -4,6 +4,6 @@
   hosts: 127.0.0.1
   connection: local
   roles:
-    - createvm
-    - bootvm
-    - uploadscript
+    - { role: "createvm" }
+    - { role: "bootvm" }
+    - { role: "uploadscript" }

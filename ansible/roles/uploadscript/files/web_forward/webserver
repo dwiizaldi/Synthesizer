@@ -88,6 +88,11 @@ class myHandler(BaseHTTPRequestHandler):
                                 data = {}
                                 self.send_response(200)
                                 self.end_headers()
+
+                elif None != re.search('/api/v1/setstress/*', self.path):
+			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+			if ctype == 'application/json':
+				length = int(self.headers.getheader('content-length'))
 		else:
 			self.send_response(403)
 			self.send_header('Content-Type', 'application/json')

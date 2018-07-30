@@ -13,7 +13,6 @@ from SocketServer import ThreadingMixIn
 import time
 import json
 import ast
-import subprocess
 
 import os.path
 from os import path
@@ -72,7 +71,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 	dtype = self.path.split('/')[-1]
 	LocalData.records[dtype] = data
 	for kkey in data:
-	  pass
+	  print kkey
 	print "new delay inputted - type: %s, value: %s" % (dtype, kkey)
 	if dtype == 'delay_post_f':
 	  delay_post_f = kkey
@@ -82,78 +81,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 	  delay_get_f = kkey
 	elif dtype == 'delay_get_b':
 	  delay_get_b = kkey	
-        print "current delay values are: %s, %s, %s, %s" % (delay_post_f, delay_post_b, delay_get_f, delay_get_b)
+        print "current delay values are:%s, %s, %s, %s" % (delay_post_f, delay_post_b, delay_get_f, delay_get_b)
       else:
         data = {}
 
-      self.send_response(200)
-      self.end_headers()
+        self.send_response(200)
+        self.end_headers()
 
-
-    elif None != re.search('/api/v1/setstress/*', self.path):
-      ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-      if ctype == 'application/json':
-        length = int(self.headers.getheader('content-length'))
-        data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-        stype = self.path.split('/')[-1]
-        LocalData.records[stype] = data
-        for num in data:
-          value,time = num.split(",")
-
-        if stype == 'cpu':
-          print "start stressing CPU with load %s%% within %ss" % (value,time)           
-          subprocess.call("stress-ng --cpu '%s' --timeout '%s'" % (value,time), shell=True)
-
-        if stype == 'mem':
-          print "start stressing memory with value %s bytes within %ss" % (value,time)
-          subprocess.call("stress-ng --vm 2 --vm-bytes '%s' --timeout '%s'" % (value,time), shell=True)
-
-        if stype == 'io':
-          print "start stressing disk with value %s within %ss" % (value,time)
-          subprocess.call("stress-ng --io %s --timeout '%s'" % (value,time), shell=True)
-     
-      else:
-        data = {}
-
-      self.send_response(200)
-      self.end_headers()
-    
-
-    elif None != re.search('/api/v1/setnetwork/*', self.path):
-      ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-      if ctype == 'application/json':
-        length = int(self.headers.getheader('content-length'))
-        data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-        ntype = self.path.split('/')[-1]
-        LocalData.records[ntype] = data
-        for net in data:
-          pass
-        if ntype == 'ping':
-          print "start generating ping" % (net)
-        if ntype == 'bandwidth':
-          print "start limiting the bandwidth: %s" % (net)
-      else:
-        data = {}
-
-      self.send_response(200)
-      self.end_headers()
-
-    elif None != re.search('/api/v1/netmode/*', self.path): 
-      ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-      if  ctype == 'application/json':
-        length = int(self.headers.getheader('content-length'))
-        data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-        modetype = self.path.split('/')[-1]
-        LocalData.records[modetype] = data
-        for mode in data:
-          print mode
-        if modetype == 'lb_ratio':
-          print  "start load balancing in ratio mode with value: %s" % (mode)
-      else:
-        data = {}
-
-      self.send_response(200)
-      self.end_header()
 
     else:
       self.send_response(403)
