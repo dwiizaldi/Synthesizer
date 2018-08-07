@@ -14,11 +14,9 @@ import time
 import json
 import ast
 import subprocess
-
 import os.path
 from os import path
 
-import threading
 
 # 
 CMD_DESCRIPTIONS = '\
@@ -127,11 +125,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         ntype = self.path.split('/')[-1]
         LocalData.records[ntype] = data
         for net in data:
-         thread,timeout = net.split(",")
+         pass
  
         if ntype == 'ping':
-          print "start generating ping with thread: %s within %s" % (thread,timeout)
-         
+          print "start generating ping within %ss" % (net)
+          subprocess.call("ping 127.0.0.1 -w '%s'" % (net), shell=True) 
+
         if ntype == 'bandwidth':
           print "start limiting the bandwidth: %s" % (net)
       else:
