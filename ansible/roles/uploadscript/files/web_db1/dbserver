@@ -14,11 +14,9 @@ import time
 import json
 import ast
 import subprocess
-
 import os.path
 from os import path
 
-import threading
 
 # 
 CMD_DESCRIPTIONS = '\
@@ -37,8 +35,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 
   def do_POST(self,need_reinit=False):
-    global attr, delay_post_f, delay_post_b, delay_get_f, delay_get_b
-
+    global attr, delay_post_f, delay_post_b, delay_get_f, delay_get_b, time
+ 
 
 #====================FOR ADDING RECORD AND SET DELAY==========================
 
@@ -119,7 +117,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       self.end_headers()
     
 
-    elif None != re.search('/api/v1/setnetwork/*', self.path):
+    elif None != re.search('/api/v1/stressnet/*', self.path):
       ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
       if ctype == 'application/json':
         length = int(self.headers.getheader('content-length'))
@@ -127,7 +125,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         ntype = self.path.split('/')[-1]
         LocalData.records[ntype] = data
         for net in data:
-          pass
+         pass
         if ntype == 'bandwidth':
           print "start limiting the bandwidth: %s" % (net)
       else:
