@@ -128,8 +128,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         LocalData.records[ntype] = data
         for net in data:
           pass
-        if ntype == 'ping':
-          print "start generating ping %s" % (net)
         if ntype == 'bandwidth':
           print "start limiting the bandwidth: %s" % (net)
       else:
