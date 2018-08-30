@@ -10,7 +10,7 @@ import json
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 import httplib2
 import time
-
+import random
 
 #
 CMD_DESCRIPTIONS = '\n\
@@ -37,7 +37,7 @@ class myHandler(BaseHTTPRequestHandler):
 	
 	#Handler for the POST requests
 	def do_POST(self):
-		global fanout_ip, fanout_port, fomodulo, focon, delay_post_f, delay_post_b, delay_get_f, delay_get_b
+		global fanout_ip, fanout_port, fomodulo, focon, delay_post_f, delay_post_b, delay_get_f, delay_get_b, time, focon
 
 		if None != re.search('/api/v1/addrecord/*', self.path):
 			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
@@ -58,7 +58,7 @@ class myHandler(BaseHTTPRequestHandler):
 
 				print '   >>> forwarding POST to %s (header: %s, data: %s)\n-------------' % (url, h1, d1)
 				h = httplib2.Http()
-	        	        (r, content) = h.request(url, "POST", headers=h1, body=d1)
+				(r, content) = h.request(url, "POST", headers=h1, body=d1)
 
 				# delay
 				time.sleep(delay_post_b)
@@ -71,25 +71,25 @@ class myHandler(BaseHTTPRequestHandler):
 			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 			if ctype == 'application/json':
 				length = int(self.headers.getheader('content-length'))
-			        data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-			        dtype = self.path.split('/')[-1]
-			        LocalData.records[dtype] = data
-			        for kkey in data:
+				data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
+				dtype = self.path.split('/')[-1]
+				LocalData.records[dtype] = data
+				for kkey in data:
 					print kkey
 				print "new delay inputted - type: %s, value: %s" % (dtype, kkey)
 				if dtype == 'delay_post_f':
 					delay_post_f = kkey
 				elif dtype == 'delay_post_b':
-                                        delay_post_b = kkey
+					delay_post_b = kkey
 				elif dtype == 'delay_get_f':
-                                        delay_get_f = kkey
+					delay_get_f = kkey
 				elif dtype == 'delay_get_b':
-                                        delay_get_b = kkey
+					delay_get_b = kkey
 				print "current delay values are:%s, %s, %s, %s" % (delay_post_f, delay_post_b, delay_get_f, delay_get_b)
 			else:
 				data = {}
 			self.send_response(200)
-                        self.end_headers()
+			self.end_headers()
 
 		elif None != re.search('/api/v1/setstress/*', self.path):
 			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
@@ -119,24 +119,6 @@ class myHandler(BaseHTTPRequestHandler):
 			self.send_response(200)
 			self.end_headers()
 
-		elif None != re.search('/api/v1/setnetwork/*', self.path):
-			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-			if ctype == 'application/json':
-				length = int(self.headers.getheader('content-length'))
-				data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
-				ntype = self.path.split('/')[-1]
-				LocalData.records[ntype] = data
-				for net in data:
-					pass
-				if ntype == 'ping':
-					print "start generating ping %s" % (net)
-				if ntype == 'bandwidth':
-					print "start limiting the bandwidth: %s" % (net)
-			else:
-				data = {}
-
-			self.send_response(200)
-			self.end_headers()
 
 		elif None != re.search('/api/v1/netmode/*', self.path):
 			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
@@ -146,14 +128,51 @@ class myHandler(BaseHTTPRequestHandler):
 				modetype = self.path.split('/')[-1]
 				LocalData.records[modetype] = data
 				for mode in data:
-					print mode
+					chances = mode.split(",")
+					chances = [float(i) for i in chances]
+					print chances
+					length = len(chances)
+
+
 				if modetype == 'lb_ratio':
-					print  "start load balancing in ratio mode with value: %s" % (mode)
+					fomodulo = int(config.get(section, 'fanout'))
+					if (length == fomodulo and sum(chances) == 1.0):
+						print "Ratio and total fanout match! Start load balancing in ratio mode"
+						def get_number(chances):
+							cur = random.uniform(0,1)
+							cur_sum = 0
+							for i, chance in enumerate(chances):
+								cur_sum += chance
+								if cur <= cur_sum:
+									return i
+						def test():
+							res = []
+							for x in range(0, length):
+								hayo = res.append(0) 
+							for i in range(1000):
+								res[get_number(chances)] += 1
+							print (res)
+
+						test()
+						focon = get_number
+
+
+					elif (length != fomodulo and sum(chances) == 1.0):
+						print "the ratio doesn't match with total fanout available"
+#						self.send_response(403)		
+
+					elif (length == fomodulo and sum(chances) != 1.0):
+						print "the total ratio doesn't equal 1.0"
+
+					elif (length != fomodulo and sum(chances) != 1.0):
+						print "please check again the total ratio"
+
+					
 			else:
 				data = {}
 		
 			self.send_response(200)
-			self.end_header()	
+			self.end_headers()	
 
 		else:
 			self.send_response(403)
