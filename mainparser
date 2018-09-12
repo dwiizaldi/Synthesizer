@@ -3,6 +3,9 @@
 import os
 import ConfigParser
 import sys
+import re
+
+# read the file descriptor first
 
 descFile = "./descriptor.conf"
 if not os.path.isfile(descFile):
@@ -11,27 +14,50 @@ if not os.path.isfile(descFile):
 descriptor = ConfigParser.ConfigParser()
 descriptor.read(descFile)
 
-# get vm
-section = 'vm'
-try:
-	vms = int(descriptor.get(section, 'vmnumber'))
-	print vms
-except ConfigParser.NoSectionError:
-	print '\nERR: No section: %s in config-file!\n' % (section)
-	sys.exit()
-for i in range(0,vms):
-	numvm = 'vm' + str(i+1)
-	try:
-		name = str(descriptor.get(numvm, 'name'))
-		print name
-		# here parse to Ansible Module to build VMs automatically
 
-	except ConfigParser.NoOptionError:
-		print 'ERROR'
-		sys.exit()
+# iterate through sections
+for each_section in descriptor.sections():
+	if re.search ('LB', each_section):
+		for (each_key, each_val) in descriptor.items(each_section):
+			if each_key == 'ip':
+				print each_val
+				print each_val.count(each_val)
+				counterlb = each_val.count(each_val)
 
-# boot up VM
-os.system("sh bootvm.sh")
+				# define lb.conf
+#				lb_conf = "ansible/roles/uploadscript/files/web_lb/baru1.conf"
+#				if not os.path.isfile(lb_conf):
+#					lbcfg = open(lb_conf, 'w')
 
-# inject the component script to the VM
-os.system("sh injectComponent.sh")
+				# copy values
+				
+#				Config = ConfigParser.ConfigParser()
+#				Config.add_section('LoadBalancer')
+#				Config.set('LoadBalancer', 'fanout', 2)
+#				Config.set('LoadBalancer', 'fanout_ip_1', each_val)
+#				Config.write(lbcfg)
+#				lbcfg.close()
+
+	elif re.search('FW', each_section):
+		for (each_key, each_val) in descriptor.items(each_section):
+			if each_key == 'ip':
+				print each_val
+				print each_val.count(each_val)
+				counterfw = each_val.count(each_val)
+				list_fw_ip = []
+			
+				# define fw.conf
+#				fw_conf = "ansible/roles/uploadscript/files/web_forward/fw.conf"
+#				if not os.path.isfile(fw_conf):
+#					fwcfg = open(fw_conf, 'w')
+
+                                # copy values
+
+#				Config = ConfigParser.ConfigParser()
+#				Config.add_section('Forwarder')
+#				Config.set('Forwarder', 'target', 1)
+#				Config.set('Forwarder', 'target_ip', each_val)
+#				Config.write(fwcfg)
+#				fwcfg.close()
+
+

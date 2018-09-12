@@ -1,13 +1,38 @@
 ---
 # tasks file for uploadscript
-- name: create directory in target host
-  tasks:
-    - file:
-        path: /home/synthesizer/components
-        state: directory
-        mode: 0755
+#- name: create directory in target host
+#  host: alltarget
+#  tasks:
+#    - file:
+#        path: /home/synthesizer/components
+#        state: directory
+#        mode: 0755
 
-- name: copying the component script to the target host
-  copy: 
-    src: /home/ccma/test/Synthesizer/ansible/roles/uploadscript/files
-    dest: /home/synthesizer/components
+#- name: copying the component script to the target host
+#  host: alltarget
+#  copy: 
+#    src: /home/ccma/test/Synthesizer/ansible/roles/uploadscript/files
+#    dest: /home/synthesizer/components
+
+# tasks file for install the package
+#- name: Install the package "stress-ng"
+#  host: alltarget
+#  apt:
+#    name: stress-ng
+
+# tasks to run the service
+# in here doing some check, what is the role of the VMs/hosts. After that, run the service respectively to their role
+- name: Run webserver service
+#  host: webserver
+  strategy: free
+  script: web_db1/dbserver.py
+  async: 10
+  poll: 0
+
+- name: Run load balancer service
+#  host: loadbalancer
+  script: web_lb/loadbalancer.py
+
+#- name: Run fowarder service
+#  host: forwarder
+#    script: web_forward/webserver.py

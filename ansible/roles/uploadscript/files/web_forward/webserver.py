@@ -8,6 +8,8 @@ import cgi
 import json
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 import time
+import os
+import ConfigParser
 
 
 #
@@ -194,23 +196,37 @@ if __name__=='__main__':
 
 	# check arguments
 	for arg in sys.argv:
-#       	print (arg)
-		if arg == '-?' or arg == '-h' or arg == '--help':
-                	helper(sys.argv[0])
-	                sys.exit()
+        	print (arg)
+#		if arg == '-?' or arg == '-h' or arg == '--help':
+#                	helper(sys.argv[0])
+#	                sys.exit()
 
 	# 
-	if len(sys.argv) < 5:
-		helper(sys.argv[0])
-		sys.exit()
+#	if len(sys.argv) < 5:
+#		helper(sys.argv[0])
+#		sys.exit()
 
-	# 
-        _from_ip = sys.argv[1]
-        _from_port = int(sys.argv[2])
-        _to_ip = sys.argv[3]
-        _to_port = int(sys.argv[4])
+        configFile = "./fw.conf"
+        if not os.path.isfile(configFile):
+                print '\nERR: config-file %s does not exist!\n' % (configFile)
+                sys.exit()
+        config = ConfigParser.ConfigParser()
+        config.read(configFile)
+        section = 'Forwarder'
+ 
+        _to_ip = config.get(section, 'target_ip')
+        _to_port = config.get(section, 'target_port')
+        
+# 
+        
+#        _from_ip = sys.argv[1]
+#        _from_port = int(sys.argv[2])
+#        _to_ip = sys.argv[3]
+#        _to_ip = '127.0.0.1'
+#        _to_port = int(sys.argv[4])
+#        _to_port = 8012
 
-	print '=> forward from %s:%d to %s:%d' % (_from_ip, _from_port, _to_ip, _to_port)
+	print '=> forward from %s:%d to %s:%s' % (_from_ip, _from_port, _to_ip, _to_port)
 
 	#
 	# attributes

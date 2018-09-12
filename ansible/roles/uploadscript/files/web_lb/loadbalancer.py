@@ -269,18 +269,20 @@ if __name__=='__main__':
 #  args = parser.parse_args()
 
 	# check arguments
-	for arg in sys.argv:
-#       	print (arg)
-		if arg == '-?' or arg == '-h' or arg == '--help':
-                	helper(sys.argv[0])
-	                sys.exit()
+        for arg in sys.argv:
+               print (arg)
+#               if arg == '-?' or arg == '-h' or arg == '--help':
+#                       helper(sys.argv[0])
+#                       sys.exit()
         # 
-        if len(sys.argv) < 3:
-                helper(sys.argv[0])
-                sys.exit()
+#        if len(sys.argv) < 3:
+#                helper(sys.argv[0])
+#                sys.exit()
         # 
-        _from_ip = sys.argv[1]
-        _from_port = int(sys.argv[2])
+#        _from_ip = sys.argv[1]
+        _from_ip = "127.0.0.1"
+#        _from_port = int(sys.argv[2])
+        _from_port = 8012
 
 	# fanout
 	fanout_ip = []
