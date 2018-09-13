@@ -14,50 +14,81 @@ if not os.path.isfile(descFile):
 descriptor = ConfigParser.ConfigParser()
 descriptor.read(descFile)
 
+lb = 0
+fw = 0
+
+
 
 # iterate through sections
 for each_section in descriptor.sections():
 	if re.search ('LB', each_section):
-		for (each_key, each_val) in descriptor.items(each_section):
+		lb=lb+1
+		for (each_key, each_val_lb) in descriptor.items(each_section):
 			if each_key == 'ip':
-				print each_val
-				print each_val.count(each_val)
-				counterlb = each_val.count(each_val)
+				print each_val_lb
 
 				# define lb.conf
 #				lb_conf = "ansible/roles/uploadscript/files/web_lb/baru1.conf"
 #				if not os.path.isfile(lb_conf):
 #					lbcfg = open(lb_conf, 'w')
 
-				# copy values
+					# copy values
 				
-#				Config = ConfigParser.ConfigParser()
-#				Config.add_section('LoadBalancer')
-#				Config.set('LoadBalancer', 'fanout', 2)
-#				Config.set('LoadBalancer', 'fanout_ip_1', each_val)
-#				Config.write(lbcfg)
-#				lbcfg.close()
+#					Config = ConfigParser.ConfigParser()
+#					Config.add_section('LoadBalancer')
+#					Config.set('LoadBalancer', 'fanout', lb)
+#					Config.set('LoadBalancer', 'fanout_ip_1', each_val)
+#					Config.write(lbcfg)
+#					lbcfg.close()
 
 	elif re.search('FW', each_section):
-		for (each_key, each_val) in descriptor.items(each_section):
+		fw=fw+1
+		for (each_key, each_val_fw) in descriptor.items(each_section):
 			if each_key == 'ip':
-				print each_val
-				print each_val.count(each_val)
-				counterfw = each_val.count(each_val)
-				list_fw_ip = []
-			
+				print each_val_fw
+
 				# define fw.conf
 #				fw_conf = "ansible/roles/uploadscript/files/web_forward/fw.conf"
 #				if not os.path.isfile(fw_conf):
 #					fwcfg = open(fw_conf, 'w')
+                                	# copy values
+	
+#					Config = ConfigParser.ConfigParser()
+#					Config.add_section('Forwarder')
+#					Config.set('Forwarder', 'target', fw)
+#					Config.set('Forwarder', 'target_ip', each_val)
+#					Config.write(fwcfg)
+#					fwcfg.close()
 
-                                # copy values
 
-#				Config = ConfigParser.ConfigParser()
-#				Config.add_section('Forwarder')
-#				Config.set('Forwarder', 'target', 1)
-#				Config.set('Forwarder', 'target_ip', each_val)
-#				Config.write(fwcfg)
-#				fwcfg.close()
+# define lb.conf
+lb_conf = "ansible/roles/uploadscript/files/web_lb/baru1.conf"
+if not os.path.isfile(lb_conf):
+	lbcfg = open(lb_conf, 'w')
+
+	# copy values
+
+        Config = ConfigParser.ConfigParser()
+        Config.add_section('LoadBalancer')
+        Config.set('LoadBalancer', 'fanout', lb)
+        Config.set('LoadBalancer', 'fanout_ip_1', each_val_lb)
+        Config.write(lbcfg)
+        lbcfg.close()
 
 
+# define fw.conf
+fw_conf = "ansible/roles/uploadscript/files/web_forward/fw.conf"
+if not os.path.isfile(fw_conf):
+	fwcfg = open(fw_conf, 'w')
+        # copy values
+
+        Config = ConfigParser.ConfigParser()
+        Config.add_section('Forwarder')
+        Config.set('Forwarder', 'target', fw)
+#        Config.set('Forwarder', 'target_ip', each_val)
+        Config.write(fwcfg)
+        fwcfg.close()
+
+
+print lb
+print fw
