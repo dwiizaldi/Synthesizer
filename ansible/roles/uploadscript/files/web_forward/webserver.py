@@ -10,7 +10,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 import time
 import os
 import ConfigParser
-
+import re
 
 #
 CMD_DESCRIPTIONS = '\n\
@@ -20,10 +20,12 @@ CMD_DESCRIPTIONS = '\n\
 		%s <from-ip(local-ip)> <from-port(local-port)> <to-ip> <to-port>\n\
 \n'
 DEF_FROM_IP = '127.0.0.1'
-DEF_FROM_PORT = 8001
+DEF_FROM_PORT = 8011
 DEF_TO_IP = ''
-DEF_TO_PORT = 8001
+DEF_TO_PORT = 8011
 
+class LocalData(object):
+	records = {}
 
 #This class will handles any incoming request from
 #the browser 
@@ -31,6 +33,7 @@ class myHandler(BaseHTTPRequestHandler):
 	
 	#Handler for the POST requests
 	def do_POST(self):
+		global delay_post_f, delay_post_b, delay_get_f, delay_get_b, time
 		if None != re.search('/api/v1/addrecord/*', self.path):
 			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 			if ctype == 'application/json':
@@ -95,6 +98,28 @@ class myHandler(BaseHTTPRequestHandler):
 			ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
 			if ctype == 'application/json':
 				length = int(self.headers.getheader('content-length'))
+				data = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
+				stype = self.path.split('/')[-1]
+				LocalData.records[stype] = data
+				for num in data:
+					value,time = num.split(",")
+				
+				if stype == 'cpu':
+					print "start stressing CPU with load %s%% within %ss" % (value,time)
+					subprocess.call("stress-ng --cpu '%s' --timeout '%s'" % (value,time), shell=True)
+
+				if stype == 'mem':
+					print "start stressing memory with value %s bytes within %ss" % (value,time)
+					subprocess.call("stress-ng --vm 2 --vm-bytes '%s' --timeout '%s'" % (value,time), shell=True)
+
+				if stype == 'io':
+					print "start stressing disk with value %s within %ss" % (value,time)
+					subprocess.call("stress-ng --io %s --timeout '%s'" % (value,time), shell=True)
+			else:
+				data = {}
+	
+			self.send_response(200)
+			self.end_headers()
 		else:
 			self.send_response(403)
 			self.send_header('Content-Type', 'application/json')
@@ -213,9 +238,9 @@ if __name__=='__main__':
         config = ConfigParser.ConfigParser()
         config.read(configFile)
         section = 'Forwarder'
- 
-        _to_ip = config.get(section, 'target_ip')
-        _to_port = config.get(section, 'target_port')
+
+        _to_ip = config.get(section, 'target_ip_1')
+#        _to_port = config.get(section, 'target_port')
         
 # 
         
