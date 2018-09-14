@@ -6,10 +6,13 @@ import sys
 import re
 
 # initialize 
-list_ip_lb = []
-list_ip_fw = []
+list_ip_lb_self = []
+list_ip_lb_out = []
+list_ip_fw_out = []
+list_ip_db_self = []
 lb = 0
 fw = 0
+lbself = 0
 
 # read the file descriptor first
 descFile = "./descriptor.conf"
@@ -21,22 +24,32 @@ descriptor.read(descFile)
 
 # iterate through sections
 for each_section in descriptor.sections():
-	if re.search('FW', each_section):
+	if re.search('LB', each_section):
+		lbself=lbself+1
+		print lbself
+		for i in range (0,lbself):
+			for (each_key, each_val_lb_self) in descriptor.items(each_section):
+				if each_key == 'ip':
+					if each_val_lb_self not in list_ip_lb_self:
+						list_ip_lb_self.append(each_val_lb_self)
+	elif re.search('FW', each_section):
 		lb=lb+1
 		print lb
 		for i in range (0,lb):
 			for (each_key, each_val_lb) in descriptor.items(each_section):
 				if each_key == 'ip':
-					if each_val_lb not in list_ip_lb:
-						list_ip_lb.append(each_val_lb)
+					if each_val_lb not in list_ip_lb_out:
+						list_ip_lb_out.append(each_val_lb)
 	elif re.search('DB', each_section):
 		fw=fw+1
 		print fw
 		for i in range (0,fw):
 			for (each_key, each_val_fw) in descriptor.items(each_section):
 				if each_key == 'ip':
-					if each_val_fw not in list_ip_fw:
-						list_ip_fw.append(each_val_fw)
+					if each_val_fw not in list_ip_fw_out:
+						list_ip_fw_out.append(each_val_fw)
+					if each_val_fw not in list_ip_db_self:
+						list_ip_db_self.append(each_val_fw)
 
 #print '[%s]' % ', '.join(map(str, my_list_lb))
 #print '[%s]' % ', '.join(map(str, my_list_fw))
@@ -50,7 +63,7 @@ Config = ConfigParser.ConfigParser()
 Config.add_section('LoadBalancer')
 Config.set('LoadBalancer', 'fanout', lb)
 for i in range(0,lb):
-	Config.set('LoadBalancer', 'fanout_ip_'+str(i+1), list_ip_lb[i])
+	Config.set('LoadBalancer', 'fanout_ip_'+str(i+1), list_ip_lb_out[i])
 	Config.set('LoadBalancer', 'fanout_port_'+str(i+1), 8011+i)
 Config.write(lbcfg)
 lbcfg.close()
@@ -64,9 +77,28 @@ Config = ConfigParser.ConfigParser()
 Config.add_section('Forwarder')
 Config.set('Forwarder', 'target', fw)
 for i in range(0,fw):
-	Config.set('Forwarder', 'target_ip_'+str(i+1), list_ip_fw[i])
+	Config.set('Forwarder', 'target_ip_'+str(i+1), list_ip_fw_out[i])
 	Config.set('Forwarder', 'target_port_'+str(i+1), 8011+i)
 Config.write(fwcfg)
 fwcfg.close()
 
 
+# parse to hosts.ini Ansible Module
+hosts_conf = "ansible/hosts"
+hostscfg = open(hosts_conf, 'w')
+
+# copy IP to hosts.ini
+hostscfg.write('[loadbalancer]\n')
+for listlb in list_ip_lb_self:
+	hostscfg.write('%s\n' % listlb)
+
+hostscfg.write('\n[forwarder]\n')
+for listfw in list_ip_lb_out:
+	hostscfg.write('%s\n' % listfw)
+
+hostscfg.write('\n[dbserver]\n')
+for listdb in list_ip_db_self:
+	hostscfg.write('%s\n' % listdb)
+
+
+hostscfg.close()
