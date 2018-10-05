@@ -1,38 +1,44 @@
 ---
-# tasks file for uploadscript
-#- name: create directory in target host
-#  host: alltarget
-#  tasks:
-#    - file:
-#        path: /home/synthesizer/components
-#        state: directory
-#        mode: 0755
+# tasks file for creating directory and upload the script based on respective components
+- name: create directory in target host
+  file:
+    path: /home/synthesizer/components
+    state: directory
+    mode: a+x
 
-#- name: copying the component script to the target host
-#  host: alltarget
-#  copy: 
-#    src: /home/ccma/test/Synthesizer/ansible/roles/uploadscript/files
-#    dest: /home/synthesizer/components
+- name: copying the db script to the target host
+  copy: 
+    src: web_db1
+    dest: /home/synthesizer/components
+  when: db|default(false)
 
-# tasks file for install the package
-#- name: Install the package "stress-ng"
-#  host: alltarget
-#  apt:
-#    name: stress-ng
+- name: copying the loadbalancer script to the target host
+  copy:
+    src: web_lb
+    dest: /home/synthesizer/components
+  when: lb|default(false)
+
+- name: copying the forwarder script to the target host
+  copy:
+    src: web_forward
+    dest: /home/synthesizer/components
+  when: fw|default(false)
 
 # tasks to run the service
-# in here doing some check, what is the role of the VMs/hosts. After that, run the service respectively to their role
-- name: Run webserver service
-#  host: webserver
-  strategy: free
-  script: web_db1/dbserver.py
-  async: 10
-  poll: 0
+- name: Run dbserver service
+  when: db|default(false)
+  systemd:
+          name: dbserver
+          state: started
 
 - name: Run load balancer service
-#  host: loadbalancer
-  script: web_lb/loadbalancer.py
+  when: lb|default(false)
+  systemd:
+          name: loadbalancer
+          state: started
 
-#- name: Run fowarder service
-#  host: forwarder
-#    script: web_forward/webserver.py
+- name: Run fowarder service
+  when: fw|default(false)
+  systemd:
+          name: forwarder
+          state: started

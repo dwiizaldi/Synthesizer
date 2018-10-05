@@ -1,9 +1,26 @@
 ---
 
-- name: start everything
+- name: create and boot up components 
   hosts: 127.0.0.1
   connection: local
   roles:
     - { role: "createvm" }
     - { role: "bootvm" }
-    - { role: "uploadscript" }
+
+- name: start on db server
+  hosts: dbserver
+  sudo: yes
+  roles:
+          - { role: "uploadscript", "db":true }
+
+- name: start on load balancer
+  hosts: loadbalancer
+  sudo: yes
+  roles:
+          - { role: "uploadscript", "lb":true }
+
+- name: start on forwarder
+  hosts: forwarder
+  sudo: yes
+  roles:
+          - { role: "uploadscript", "fw":true }

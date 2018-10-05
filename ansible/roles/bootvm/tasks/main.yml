@@ -2,22 +2,22 @@
 # tasks file for bootvm1
 - name: get list VMs
   virt:
-    command: list_vms
+          command: list_vms
   register: output_vms
 
 - debug:
-    msg: "{{ output_vms.list_vms }}"
+        msg: "Existing VMs: {{ output_vms.list_vms }}"
 
 - name: run all the VMs
   virt:
-    name: "{{ output_vms.list_vms[1] }}"
-    state: running
+          name: "{{ item }}"
+          #          state: running
+          state: shutdown
+  with_list: "{{ output_vms.list_vms }}"
 
-- name: check VM status
-  virt:
-    name: "{{ output_vms.list_vms[1] }}"
-    command: status
-  register: output_status
+- name: wait for VM to become available
+  wait_for:
+          timeout: 300
+  delegate_to: localhost
 
-- debug:
-    msg:  "{{ output_status }}"
+

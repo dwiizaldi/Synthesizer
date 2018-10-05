@@ -238,7 +238,7 @@ if __name__=='__main__':
   try: 
 	_port = int(sys.argv[2])
   except IndexError:
-	_port = 8001
+	_port = 8011
   print "=> web+db ip: %s, port: %d" % (_ip, _port)
 
 
